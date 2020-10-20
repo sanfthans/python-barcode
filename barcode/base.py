@@ -1,43 +1,37 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 """barcode.base
 
 """
-
 from barcode.writer import SVGWriter
 
 
-class Barcode(object):
+class Barcode:
 
-    name = ''
+    name = ""
 
     digits = 0
 
     default_writer = SVGWriter
 
     default_writer_options = {
-        'module_width': 0.2,
-        'module_height': 15.0,
-        'quiet_zone': 6.5,
-        'font_size': 10,
-        'text_distance': 5.0,
-        'background': 'white',
-        'foreground': 'black',
-        'write_text': True,
-        'text': '',
+        "module_width": 0.2,
+        "module_height": 15.0,
+        "quiet_zone": 6.5,
+        "font_size": 10,
+        "text_distance": 5.0,
+        "background": "white",
+        "foreground": "black",
+        "write_text": True,
+        "text": "",
     }
 
     def to_ascii(self):
         code = self.build()
         for i, line in enumerate(code):
-            code[i] = line.replace('1', 'X').replace('0', ' ')
-        return '\n'.join(code)
+            code[i] = line.replace("1", "X").replace("0", " ")
+        return "\n".join(code)
 
     def __repr__(self):
-        return '<{0}({1!r})>'.format(self.__class__.__name__,
-                                     self.get_fullcode())
+        return "<{}({!r})>".format(self.__class__.__name__, self.get_fullcode())
 
     def build(self):
         raise NotImplementedError
@@ -59,7 +53,7 @@ class Barcode(object):
                 extension).
             options : Dict
                 The same as in `self.render`.
-            text : str (unicode on Python 2)
+            text : str
                 Text to render under the barcode.
 
         :returns: The full filename with extension.
@@ -82,14 +76,11 @@ class Barcode(object):
                 Object to write the raw data in.
             options : Dict
                 The same as in `self.render`.
-            text : str (unicode on Python 2)
+            text : str
                 Text to render under the barcode.
         """
         output = self.render(options, text)
-        if hasattr(output, 'tostring'):
-            output.save(fp, format=self.writer.format)
-        else:
-            fp.write(output)
+        self.writer.write(output, fp)
 
     def render(self, writer_options=None, text=None):
         """Renders the barcode using `self.writer`.
@@ -97,18 +88,18 @@ class Barcode(object):
         :parameters:
             writer_options : Dict
                 Options for `self.writer`, see writer docs for details.
-            text : str (unicode on Python 2)
+            text : str
                 Text to render under the barcode.
 
         :returns: Output of the writers render method.
         """
         options = Barcode.default_writer_options.copy()
         options.update(writer_options or {})
-        if options['write_text'] or text is not None:
+        if options["write_text"] or text is not None:
             if text is not None:
-                options['text'] = text
+                options["text"] = text
             else:
-                options['text'] = self.get_fullcode()
+                options["text"] = self.get_fullcode()
         self.writer.set_options(options)
         code = self.build()
         raw = self.writer.render(code)
